@@ -1,26 +1,58 @@
 #include "CodeParser.h"
 #include <fstream>
-#include <sstream>
+#include <cctype>
+#include <string>
 
-// Heuristic only: looks for a line containing "(" and ")" and ending in "{",
-// which roughly matches function definitions like "int foo(int x) {".
-// This will have false positives/negatives — real parsing comes later with libclang.
+// Heuristic function detection.
+// It looks for something that resembles a function definition,
+// while ignoring control statements such as if, for, while and switch.
 bool CodeParser::looksLikeFunctionDeclaration(const std::string& line) const {
-    bool hasParens = line.find('(') != std::string::npos &&
-                      line.find(')') != std::string::npos;
 
-    // Trim trailing whitespace to check the last real character.
+    // Make a copy of the line.
     std::string trimmed = line;
-    while (!trimmed.empty() && std::isspace(static_cast<unsigned char>(trimmed.back()))) {
-        trimmed.pop_back();
+
+    // Remove spaces/tabs from the beginning.
+    size_t start = trimmed.find_first_not_of(" \t");
+
+    if (start != std::string::npos) {
+        trimmed = trimmed.substr(start);
     }
 
-    bool endsWithBrace = !trimmed.empty() && trimmed.back() == '{';
+    // Remove spaces/tabs from the end.
+    size_t end = trimmed.find_last_not_of(" \t");
+
+    if (end != std::string::npos) {
+        trimmed = trimmed.substr(0, end + 1);
+    }
+
+    // Check for parentheses.
+    bool hasParens =
+        trimmed.find('(') != std::string::npos &&
+        trimmed.find(')') != std::string::npos;
+
+    // Check that the line ends with {
+    bool endsWithBrace =
+        !trimmed.empty() &&
+        trimmed.back() == '{';
+
+    // Ignore control statements.
+    if (trimmed.rfind("if(", 0) == 0 ||
+        trimmed.rfind("if (", 0) == 0 ||
+        trimmed.rfind("for(", 0) == 0 ||
+        trimmed.rfind("for (", 0) == 0 ||
+        trimmed.rfind("while(", 0) == 0 ||
+        trimmed.rfind("while (", 0) == 0 ||
+        trimmed.rfind("switch(", 0) == 0 ||
+        trimmed.rfind("switch (", 0) == 0) {
+
+        return false;
+    }
 
     return hasParens && endsWithBrace;
 }
 
 FileStats CodeParser::analyzeFile(const std::string& filePath) const {
+
     FileStats stats;
     stats.filePath = filePath;
 
@@ -28,6 +60,7 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
     std::string line;
 
     while (std::getline(file, line)) {
+
         stats.totalLines++;
 
         if (looksLikeFunctionDeclaration(line)) {
