@@ -51,6 +51,7 @@ bool CodeParser::looksLikeFunctionDeclaration(const std::string& line) const {
     return hasParens && endsWithBrace;
 }
 
+
 FileStats CodeParser::analyzeFile(const std::string& filePath) const {
 
     FileStats stats;
@@ -68,6 +69,29 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
 
         stats.totalLines++;
 
+        // Store normalized non-empty lines for duplicate code detection.
+        std::string normalizedLine = line;
+
+        // Remove leading spaces and tabs.
+        size_t start = normalizedLine.find_first_not_of(" \t");
+
+        if (start != std::string::npos) {
+            normalizedLine = normalizedLine.substr(start);
+        }
+
+        // Remove trailing spaces and tabs.
+        size_t end = normalizedLine.find_last_not_of(" \t");
+
+        if (end != std::string::npos) {
+            normalizedLine = normalizedLine.substr(0, end + 1);
+        }
+
+        // Store the normalized line.
+        if (!normalizedLine.empty()) {
+            stats.codeLines.push_back(normalizedLine);
+        }
+
+        // Detect functions.
         if (looksLikeFunctionDeclaration(line)) {
 
             stats.functionCount++;
@@ -75,24 +99,32 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
             currentFunctionLines = 1;
             braceDepth = 0;
 
+            // Find the opening parenthesis.
             size_t openParen = line.find('(');
 
             if (openParen != std::string::npos) {
 
-                std::string beforeParen = line.substr(0, openParen);
+                std::string beforeParen =
+                    line.substr(0, openParen);
 
-                size_t end = beforeParen.find_last_not_of(" \t");
+                // Remove trailing spaces.
+                size_t functionEnd =
+                    beforeParen.find_last_not_of(" \t");
 
-                if (end != std::string::npos) {
-                    beforeParen = beforeParen.substr(0, end + 1);
+                if (functionEnd != std::string::npos) {
+                    beforeParen =
+                        beforeParen.substr(0, functionEnd + 1);
                 }
 
-                size_t space = beforeParen.find_last_of(" \t");
+                // Find the last space before the function name.
+                size_t space =
+                    beforeParen.find_last_of(" \t");
 
                 if (space != std::string::npos) {
                     currentFunctionName =
                         beforeParen.substr(space + 1);
-                } else {
+                }
+                else {
                     currentFunctionName = beforeParen;
                 }
             }
@@ -102,12 +134,14 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
             currentFunctionLines++;
         }
 
+        // Count TODOs.
         if (line.find("TODO") != std::string::npos) {
             stats.todoCount++;
         }
 
         // Count opening braces.
         for (char character : line) {
+
             if (character == '{') {
                 braceDepth++;
             }
@@ -115,6 +149,7 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
 
         // Count closing braces.
         for (char character : line) {
+
             if (character == '}') {
                 braceDepth--;
             }
@@ -123,10 +158,14 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
         // Function ends when all braces are closed.
         if (insideFunction && braceDepth == 0) {
 
-            if (currentFunctionLines > stats.longestFunctionLines) {
+            if (currentFunctionLines >
+                stats.longestFunctionLines) {
 
-                stats.longestFunctionLines = currentFunctionLines;
-                stats.longestFunctionName = currentFunctionName;
+                stats.longestFunctionLines =
+                    currentFunctionLines;
+
+                stats.longestFunctionName =
+                    currentFunctionName;
             }
 
             insideFunction = false;

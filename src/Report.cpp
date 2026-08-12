@@ -2,7 +2,10 @@
 #include <iostream>
 #include <iomanip>
 
-void Report::print(const std::vector<FileStats>& allStats) {
+void Report::print(
+    const std::vector<FileStats>& allStats,
+    const std::vector<DuplicateMatch>& duplicates
+) {
 
     int totalLines = 0;
     int totalFunctions = 0;
@@ -23,6 +26,7 @@ void Report::print(const std::vector<FileStats>& allStats) {
 
         // Display the longest function in this file.
         if (!stats.longestFunctionName.empty()) {
+
             std::cout << "    Longest function: "
                       << stats.longestFunctionName
                       << " | "
@@ -34,7 +38,7 @@ void Report::print(const std::vector<FileStats>& allStats) {
         totalFunctions += stats.functionCount;
         totalTodos += stats.todoCount;
 
-        // Check whether this is the longest function in the project.
+        // Check for the longest function in the entire project.
         if (stats.longestFunctionLines > projectLongestFunctionLines) {
 
             projectLongestFunctionLines = stats.longestFunctionLines;
@@ -50,7 +54,7 @@ void Report::print(const std::vector<FileStats>& allStats) {
     std::cout << "Total functions: " << totalFunctions << "\n";
     std::cout << "Total TODOs:     " << totalTodos << "\n";
 
-    // Display the longest function in the entire project.
+    // Display project-wide longest function.
     if (!projectLongestFunction.empty()) {
 
         std::cout << "Longest function: "
@@ -60,6 +64,26 @@ void Report::print(const std::vector<FileStats>& allStats) {
 
         std::cout << "Longest function file: "
                   << projectLongestFile << "\n";
+    }
+
+    // Display duplicate code.
+    if (!duplicates.empty()) {
+
+        std::cout << "\n=== Duplicate Code ===\n\n";
+
+        for (const auto& duplicate : duplicates) {
+
+            std::cout << "Duplicate line:\n";
+            std::cout << "    " << duplicate.code << "\n";
+
+            std::cout << "Found in:\n";
+            std::cout << "    " << duplicate.firstFile << "\n";
+            std::cout << "    " << duplicate.secondFile << "\n\n";
+        }
+
+    } else {
+
+        std::cout << "\nNo duplicate code found.\n";
     }
 
     std::cout << "\n";

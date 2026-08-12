@@ -21,6 +21,10 @@ int main() {
     while (false) {
         std::cout << "Loop";
     }
+     std::cout << "Hello from the test project";
+
+    // your existing code...
+
 
     return 0;
 }

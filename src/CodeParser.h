@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 // Result of analyzing a single source file.
 struct FileStats {
@@ -10,6 +11,8 @@ struct FileStats {
 
     std::string longestFunctionName;
     int longestFunctionLines = 0;
+
+    std::vector<std::string> codeLines;
 };
 
 // Very simple line-based analysis (not a real parser yet — that's a later upgrade).

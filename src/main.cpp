@@ -2,6 +2,7 @@
 #include "FileScanner.h"
 #include "CodeParser.h"
 #include "Report.h"
+#include "DuplicateDetector.h"
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -22,11 +23,15 @@ int main(int argc, char* argv[]) {
     CodeParser parser;
     std::vector<FileStats> allStats;
 
-    for (const auto& file : files) {
+        for (const auto& file : files) {
         allStats.push_back(parser.analyzeFile(file));
     }
 
-    Report::print(allStats);
+    // Find duplicate code between analyzed files.
+    std::vector<DuplicateMatch> duplicates =
+        DuplicateDetector::findDuplicates(allStats);
+
+    Report::print(allStats, duplicates);
 
     return 0;
 }

@@ -9,4 +9,5 @@ add_executable(analyzer
     src/FileScanner.cpp
     src/CodeParser.cpp
     src/Report.cpp
+    src/DuplicateDetector.cpp
 )
