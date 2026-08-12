@@ -7,6 +7,9 @@ struct FileStats {
     int totalLines = 0;
     int functionCount = 0;
     int todoCount = 0;
+
+    std::string longestFunctionName;
+    int longestFunctionLines = 0;
 };
 
 // Very simple line-based analysis (not a real parser yet — that's a later upgrade).
