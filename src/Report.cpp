@@ -19,7 +19,8 @@ void Report::print(
 
     for (const auto& stats : allStats) {
 
-        std::cout << std::left << std::setw(40) << stats.filePath
+        std::cout << std::left << std::setw(40)
+                  << stats.filePath
                   << "| " << stats.totalLines << " lines"
                   << " | " << stats.functionCount << " functions"
                   << " | " << stats.todoCount << " TODOs\n";
@@ -33,72 +34,107 @@ void Report::print(
                       << stats.longestFunctionLines
                       << " lines\n";
         }
-        // Display large function warning.
-if (!stats.largeFunctionName.empty()) {
 
-    std::cout << "    WARNING: Large function: "
-              << stats.largeFunctionName
-              << " | "
-              << stats.largeFunctionLines
-              << " lines\n";
-}
+        // Display large function warning.
+        if (!stats.largeFunctionName.empty()) {
+
+            std::cout << "    WARNING: Large function: "
+                      << stats.largeFunctionName
+                      << " | "
+                      << stats.largeFunctionLines
+                      << " lines\n";
+        }
+
+        // Display complexity information.
+        if (!stats.complexFunctionName.empty()) {
+
+            std::cout << "    Complexity: "
+                      << stats.complexFunctionName
+                      << " | Score: "
+                      << stats.complexFunctionScore
+                      << "\n";
+        }
 
         totalLines += stats.totalLines;
         totalFunctions += stats.functionCount;
         totalTodos += stats.todoCount;
 
         // Check for the longest function in the entire project.
-        if (stats.longestFunctionLines > projectLongestFunctionLines) {
+        if (stats.longestFunctionLines >
+            projectLongestFunctionLines) {
 
-            projectLongestFunctionLines = stats.longestFunctionLines;
-            projectLongestFunction = stats.longestFunctionName;
-            projectLongestFile = stats.filePath;
+            projectLongestFunctionLines =
+                stats.longestFunctionLines;
+
+            projectLongestFunction =
+                stats.longestFunctionName;
+
+            projectLongestFile =
+                stats.filePath;
         }
     }
 
     std::cout << "\n-----------------------------\n";
 
-    std::cout << "Files scanned:   " << allStats.size() << "\n";
-    std::cout << "Total lines:     " << totalLines << "\n";
-    std::cout << "Total functions: " << totalFunctions << "\n";
-    std::cout << "Total TODOs:     " << totalTodos << "\n";
+    std::cout << "Files scanned:   "
+              << allStats.size() << "\n";
+
+    std::cout << "Total lines:     "
+              << totalLines << "\n";
+
+    std::cout << "Total functions: "
+              << totalFunctions << "\n";
+
+    std::cout << "Total TODOs:     "
+              << totalTodos << "\n";
 
     // Display project-wide longest function.
     if (!projectLongestFunction.empty()) {
 
         std::cout << "Longest function: "
                   << projectLongestFunction
-                  << " (" << projectLongestFunctionLines
+                  << " ("
+                  << projectLongestFunctionLines
                   << " lines)\n";
 
         std::cout << "Longest function file: "
-                  << projectLongestFile << "\n";
+                  << projectLongestFile
+                  << "\n";
     }
 
-// Display duplicate code blocks.
-if (!duplicates.empty()) {
+    // Display duplicate code blocks.
+    if (!duplicates.empty()) {
 
-    std::cout << "\n=== Duplicate Code ===\n\n";
+        std::cout << "\n=== Duplicate Code ===\n\n";
 
-    for (const auto& duplicate : duplicates) {
+        for (const auto& duplicate : duplicates) {
 
-        std::cout << "Duplicate block:\n";
+            std::cout << "Duplicate block:\n";
 
-        for (const auto& line : duplicate.codeLines) {
-            std::cout << "    " << line << "\n";
+            for (const auto& line : duplicate.codeLines) {
+
+                std::cout << "    "
+                          << line
+                          << "\n";
+            }
+
+            std::cout << "\nLines duplicated: "
+                      << duplicate.codeLines.size()
+                      << "\n";
+
+            std::cout << "Found in:\n";
+
+            std::cout << "    "
+                      << duplicate.firstFile
+                      << "\n";
+
+            std::cout << "    "
+                      << duplicate.secondFile
+                      << "\n\n";
         }
 
-        std::cout << "\nLines duplicated: "
-                  << duplicate.codeLines.size()
-                  << "\n";
+    } else {
 
-        std::cout << "Found in:\n";
-        std::cout << "    " << duplicate.firstFile << "\n";
-        std::cout << "    " << duplicate.secondFile << "\n\n";
+        std::cout << "\nNo duplicate code found.\n";
     }
-
-} else {
-
-    std::cout << "\nNo duplicate code found.\n";
-}
 }

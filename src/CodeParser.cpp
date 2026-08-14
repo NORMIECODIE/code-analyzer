@@ -6,7 +6,8 @@
 // Heuristic function detection.
 // It looks for something that resembles a function definition,
 // while ignoring control statements such as if, for, while and switch.
-bool CodeParser::looksLikeFunctionDeclaration(const std::string& line) const {
+bool CodeParser::looksLikeFunctionDeclaration(
+    const std::string& line) const {
 
     // Make a copy of the line.
     std::string trimmed = line;
@@ -52,7 +53,8 @@ bool CodeParser::looksLikeFunctionDeclaration(const std::string& line) const {
 }
 
 
-FileStats CodeParser::analyzeFile(const std::string& filePath) const {
+FileStats CodeParser::analyzeFile(
+    const std::string& filePath) const {
 
     FileStats stats;
     stats.filePath = filePath;
@@ -63,6 +65,7 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
     bool insideFunction = false;
     int currentFunctionLines = 0;
     int braceDepth = 0;
+    int currentFunctionComplexity = 0;
     std::string currentFunctionName;
 
     while (std::getline(file, line)) {
@@ -73,17 +76,21 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
         std::string normalizedLine = line;
 
         // Remove leading spaces and tabs.
-        size_t start = normalizedLine.find_first_not_of(" \t");
+        size_t start =
+            normalizedLine.find_first_not_of(" \t");
 
         if (start != std::string::npos) {
-            normalizedLine = normalizedLine.substr(start);
+            normalizedLine =
+                normalizedLine.substr(start);
         }
 
         // Remove trailing spaces and tabs.
-        size_t end = normalizedLine.find_last_not_of(" \t");
+        size_t end =
+            normalizedLine.find_last_not_of(" \t");
 
         if (end != std::string::npos) {
-            normalizedLine = normalizedLine.substr(0, end + 1);
+            normalizedLine =
+                normalizedLine.substr(0, end + 1);
         }
 
         // Store the normalized line.
@@ -95,9 +102,11 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
         if (looksLikeFunctionDeclaration(line)) {
 
             stats.functionCount++;
+
             insideFunction = true;
             currentFunctionLines = 1;
             braceDepth = 0;
+            currentFunctionComplexity = 0;
 
             // Find the opening parenthesis.
             size_t openParen = line.find('(');
@@ -113,7 +122,10 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
 
                 if (functionEnd != std::string::npos) {
                     beforeParen =
-                        beforeParen.substr(0, functionEnd + 1);
+                        beforeParen.substr(
+                            0,
+                            functionEnd + 1
+                        );
                 }
 
                 // Find the last space before the function name.
@@ -121,11 +133,14 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
                     beforeParen.find_last_of(" \t");
 
                 if (space != std::string::npos) {
+
                     currentFunctionName =
                         beforeParen.substr(space + 1);
-                }
-                else {
-                    currentFunctionName = beforeParen;
+
+                } else {
+
+                    currentFunctionName =
+                        beforeParen;
                 }
             }
         }
@@ -137,6 +152,34 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
         // Count TODOs.
         if (line.find("TODO") != std::string::npos) {
             stats.todoCount++;
+        }
+
+        // Count control-flow statements for complexity.
+        if (insideFunction) {
+
+            if (line.find("if(") != std::string::npos ||
+                line.find("if (") != std::string::npos) {
+
+                currentFunctionComplexity++;
+            }
+
+            if (line.find("for(") != std::string::npos ||
+                line.find("for (") != std::string::npos) {
+
+                currentFunctionComplexity++;
+            }
+
+            if (line.find("while(") != std::string::npos ||
+                line.find("while (") != std::string::npos) {
+
+                currentFunctionComplexity++;
+            }
+
+            if (line.find("switch(") != std::string::npos ||
+                line.find("switch (") != std::string::npos) {
+
+                currentFunctionComplexity++;
+            }
         }
 
         // Count opening braces.
@@ -181,6 +224,17 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
                     stats.largeFunctionName =
                         currentFunctionName;
                 }
+            }
+
+            // Store the most complex function.
+            if (currentFunctionComplexity >
+                stats.complexFunctionScore) {
+
+                stats.complexFunctionScore =
+                    currentFunctionComplexity;
+
+                stats.complexFunctionName =
+                    currentFunctionName;
             }
 
             insideFunction = false;

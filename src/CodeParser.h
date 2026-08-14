@@ -16,6 +16,9 @@ struct FileStats {
     std::string largeFunctionName;
     int largeFunctionLines = 0;
 
+      std::string complexFunctionName;
+    int complexFunctionScore = 0;
+
     std::vector<std::string> codeLines;
 };
 
