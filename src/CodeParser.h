@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <vector>
 
@@ -11,6 +12,9 @@ struct FileStats {
 
     std::string longestFunctionName;
     int longestFunctionLines = 0;
+
+    std::string largeFunctionName;
+    int largeFunctionLines = 0;
 
     std::vector<std::string> codeLines;
 };

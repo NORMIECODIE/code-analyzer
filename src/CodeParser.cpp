@@ -158,6 +158,7 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
         // Function ends when all braces are closed.
         if (insideFunction && braceDepth == 0) {
 
+            // Update longest function.
             if (currentFunctionLines >
                 stats.longestFunctionLines) {
 
@@ -166,6 +167,20 @@ FileStats CodeParser::analyzeFile(const std::string& filePath) const {
 
                 stats.longestFunctionName =
                     currentFunctionName;
+            }
+
+            // Flag functions larger than 20 lines.
+            if (currentFunctionLines > 20) {
+
+                if (currentFunctionLines >
+                    stats.largeFunctionLines) {
+
+                    stats.largeFunctionLines =
+                        currentFunctionLines;
+
+                    stats.largeFunctionName =
+                        currentFunctionName;
+                }
             }
 
             insideFunction = false;

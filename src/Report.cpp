@@ -33,6 +33,15 @@ void Report::print(
                       << stats.longestFunctionLines
                       << " lines\n";
         }
+        // Display large function warning.
+if (!stats.largeFunctionName.empty()) {
+
+    std::cout << "    WARNING: Large function: "
+              << stats.largeFunctionName
+              << " | "
+              << stats.largeFunctionLines
+              << " lines\n";
+}
 
         totalLines += stats.totalLines;
         totalFunctions += stats.functionCount;
