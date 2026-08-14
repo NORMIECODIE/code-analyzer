@@ -4,14 +4,14 @@
 #include <vector>
 #include "CodeParser.h"
 
-// Represents one piece of duplicate code.
+// Represents a block of duplicate code.
 struct DuplicateMatch {
     std::string firstFile;
     std::string secondFile;
-    std::string code;
+    std::vector<std::string> codeLines;
 };
 
-// Detects repeated code between analyzed files.
+// Detects repeated blocks of code between analyzed files.
 class DuplicateDetector {
 public:
     static std::vector<DuplicateMatch> findDuplicates(

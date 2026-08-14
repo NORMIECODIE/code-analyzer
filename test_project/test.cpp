@@ -23,8 +23,11 @@ int main() {
     }
      std::cout << "Hello from the test project";
 
-    // your existing code...
+int x = 10;
+int y = 20;
+int result = x + y;
 
+// your existing code...
 
     return 0;
 }

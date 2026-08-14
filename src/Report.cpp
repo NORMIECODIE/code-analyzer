@@ -66,25 +66,30 @@ void Report::print(
                   << projectLongestFile << "\n";
     }
 
-    // Display duplicate code.
-    if (!duplicates.empty()) {
+// Display duplicate code blocks.
+if (!duplicates.empty()) {
 
-        std::cout << "\n=== Duplicate Code ===\n\n";
+    std::cout << "\n=== Duplicate Code ===\n\n";
 
-        for (const auto& duplicate : duplicates) {
+    for (const auto& duplicate : duplicates) {
 
-            std::cout << "Duplicate line:\n";
-            std::cout << "    " << duplicate.code << "\n";
+        std::cout << "Duplicate block:\n";
 
-            std::cout << "Found in:\n";
-            std::cout << "    " << duplicate.firstFile << "\n";
-            std::cout << "    " << duplicate.secondFile << "\n\n";
+        for (const auto& line : duplicate.codeLines) {
+            std::cout << "    " << line << "\n";
         }
 
-    } else {
+        std::cout << "\nLines duplicated: "
+                  << duplicate.codeLines.size()
+                  << "\n";
 
-        std::cout << "\nNo duplicate code found.\n";
+        std::cout << "Found in:\n";
+        std::cout << "    " << duplicate.firstFile << "\n";
+        std::cout << "    " << duplicate.secondFile << "\n\n";
     }
 
-    std::cout << "\n";
+} else {
+
+    std::cout << "\nNo duplicate code found.\n";
+}
 }
