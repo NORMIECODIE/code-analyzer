@@ -9,17 +9,16 @@
 bool CodeParser::looksLikeFunctionDeclaration(
     const std::string& line) const {
 
-    // Make a copy of the line.
     std::string trimmed = line;
 
-    // Remove spaces/tabs from the beginning.
+    // Remove leading spaces and tabs.
     size_t start = trimmed.find_first_not_of(" \t");
 
     if (start != std::string::npos) {
         trimmed = trimmed.substr(start);
     }
 
-    // Remove spaces/tabs from the end.
+    // Remove trailing spaces and tabs.
     size_t end = trimmed.find_last_not_of(" \t");
 
     if (end != std::string::npos) {
@@ -223,6 +222,28 @@ FileStats CodeParser::analyzeFile(
 
                     stats.largeFunctionName =
                         currentFunctionName;
+
+                    // Create a quality issue.
+                    QualityIssue issue;
+
+                    issue.type =
+                        "Large Function";
+
+                    issue.filePath =
+                        stats.filePath;
+
+                    issue.functionName =
+                        currentFunctionName;
+
+                    issue.message =
+                        "Function is larger than the "
+                        "recommended 20-line limit.";
+
+                    issue.suggestion =
+                        "Break the function into smaller "
+                        "functions with clear responsibilities.";
+
+                    stats.issues.push_back(issue);
                 }
             }
 
@@ -235,6 +256,36 @@ FileStats CodeParser::analyzeFile(
 
                 stats.complexFunctionName =
                     currentFunctionName;
+
+                // Create a quality issue for high complexity.
+                if (currentFunctionComplexity >= 5) {
+
+                    QualityIssue issue;
+
+                    issue.type =
+                        "High Complexity";
+
+                    issue.filePath =
+                        stats.filePath;
+
+                    issue.functionName =
+                        currentFunctionName;
+
+                    issue.message =
+                        "Function has a high control-flow "
+                        "complexity score of " +
+                        std::to_string(
+                            currentFunctionComplexity
+                        ) +
+                        ".";
+
+                    issue.suggestion =
+                        "Reduce nested conditions and split "
+                        "the function into smaller "
+                        "responsibilities.";
+
+                    stats.issues.push_back(issue);
+                }
             }
 
             insideFunction = false;

@@ -31,3 +31,31 @@ int result = x + y;
 
     return 0;
 }
+void complexTest() {
+
+    if (true) {
+        std::cout << "Condition 1";
+    }
+
+    if (true) {
+        std::cout << "Condition 2";
+    }
+
+    for (int i = 0; i < 5; i++) {
+        std::cout << i;
+    }
+
+    while (false) {
+        std::cout << "Loop";
+    }
+
+    switch (1) {
+
+        case 1:
+            std::cout << "Switch";
+            break;
+
+        default:
+            break;
+    }
+}

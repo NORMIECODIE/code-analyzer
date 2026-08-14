@@ -77,16 +77,20 @@ void Report::print(
     std::cout << "\n-----------------------------\n";
 
     std::cout << "Files scanned:   "
-              << allStats.size() << "\n";
+              << allStats.size()
+              << "\n";
 
     std::cout << "Total lines:     "
-              << totalLines << "\n";
+              << totalLines
+              << "\n";
 
     std::cout << "Total functions: "
-              << totalFunctions << "\n";
+              << totalFunctions
+              << "\n";
 
     std::cout << "Total TODOs:     "
-              << totalTodos << "\n";
+              << totalTodos
+              << "\n";
 
     // Display project-wide longest function.
     if (!projectLongestFunction.empty()) {
@@ -100,6 +104,56 @@ void Report::print(
         std::cout << "Longest function file: "
                   << projectLongestFile
                   << "\n";
+    }
+
+    // Display structured code-quality issues.
+    bool hasIssues = false;
+
+    for (const auto& stats : allStats) {
+
+        if (!stats.issues.empty()) {
+            hasIssues = true;
+            break;
+        }
+    }
+
+    if (hasIssues) {
+
+        std::cout << "\n=== Code Quality Issues ===\n\n";
+
+        for (const auto& stats : allStats) {
+
+            for (const auto& issue : stats.issues) {
+
+                std::cout << "Issue: "
+                          << issue.type
+                          << "\n";
+
+                std::cout << "    File: "
+                          << issue.filePath
+                          << "\n";
+
+                if (!issue.functionName.empty()) {
+
+                    std::cout << "    Function: "
+                              << issue.functionName
+                              << "\n";
+                }
+
+                std::cout << "    Problem: "
+                          << issue.message
+                          << "\n";
+
+                std::cout << "    Suggestion: "
+                          << issue.suggestion
+                          << "\n\n";
+            }
+        }
+
+    } else {
+
+        std::cout << "\n=== Code Quality Issues ===\n\n";
+        std::cout << "No code quality issues found.\n";
     }
 
     // Display duplicate code blocks.
