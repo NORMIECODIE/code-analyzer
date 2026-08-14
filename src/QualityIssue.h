@@ -5,7 +5,11 @@
 // Represents one code-quality issue found by the analyzer.
 struct QualityIssue {
 
-    // Name of the issue.
+    // Type of issue.
+    // Examples:
+    // "Large Function"
+    // "High Complexity"
+    // "Duplicate Code"
     std::string type;
 
     // File where the issue was found.
@@ -14,9 +18,24 @@ struct QualityIssue {
     // Function related to the issue, if applicable.
     std::string functionName;
 
+    // Numeric value associated with the issue.
+    //
+    // Examples:
+    // Large Function  -> number of lines
+    // High Complexity -> complexity score
+    // Duplicate Code  -> duplicated lines
+    int value = 0;
+
     // Short explanation of the problem.
     std::string message;
 
     // Suggested improvement.
     std::string suggestion;
+
+    // Severity of the issue.
+    // Examples:
+    // LOW
+    // MEDIUM
+    // HIGH
+    std::string severity;
 };

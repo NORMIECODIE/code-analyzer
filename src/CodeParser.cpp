@@ -65,6 +65,7 @@ FileStats CodeParser::analyzeFile(
     int currentFunctionLines = 0;
     int braceDepth = 0;
     int currentFunctionComplexity = 0;
+
     std::string currentFunctionName;
 
     while (std::getline(file, line)) {
@@ -120,6 +121,7 @@ FileStats CodeParser::analyzeFile(
                     beforeParen.find_last_not_of(" \t");
 
                 if (functionEnd != std::string::npos) {
+
                     beforeParen =
                         beforeParen.substr(
                             0,
@@ -211,7 +213,10 @@ FileStats CodeParser::analyzeFile(
                     currentFunctionName;
             }
 
-            // Flag functions larger than 20 lines.
+            // -----------------------------------------
+            // LARGE FUNCTION
+            // -----------------------------------------
+
             if (currentFunctionLines > 20) {
 
                 if (currentFunctionLines >
@@ -235,6 +240,10 @@ FileStats CodeParser::analyzeFile(
                     issue.functionName =
                         currentFunctionName;
 
+                    // Store the number of lines.
+                    issue.value =
+                        currentFunctionLines;
+
                     issue.message =
                         "Function is larger than the "
                         "recommended 20-line limit.";
@@ -243,11 +252,18 @@ FileStats CodeParser::analyzeFile(
                         "Break the function into smaller "
                         "functions with clear responsibilities.";
 
+                    // Large functions are currently medium severity.
+                    issue.severity =
+                        "MEDIUM";
+
                     stats.issues.push_back(issue);
                 }
             }
 
-            // Store the most complex function.
+            // -----------------------------------------
+            // COMPLEX FUNCTION
+            // -----------------------------------------
+
             if (currentFunctionComplexity >
                 stats.complexFunctionScore) {
 
@@ -271,8 +287,12 @@ FileStats CodeParser::analyzeFile(
                     issue.functionName =
                         currentFunctionName;
 
+                    // Store the complexity score.
+                    issue.value =
+                        currentFunctionComplexity;
+
                     issue.message =
-                        "Function has a high control-flow "
+                        "Function has a control-flow "
                         "complexity score of " +
                         std::to_string(
                             currentFunctionComplexity
@@ -283,6 +303,18 @@ FileStats CodeParser::analyzeFile(
                         "Reduce nested conditions and split "
                         "the function into smaller "
                         "responsibilities.";
+
+                    // Determine severity.
+                    if (currentFunctionComplexity >= 8) {
+
+                        issue.severity =
+                            "HIGH";
+
+                    } else {
+
+                        issue.severity =
+                            "MEDIUM";
+                    }
 
                     stats.issues.push_back(issue);
                 }

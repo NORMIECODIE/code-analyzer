@@ -106,12 +106,16 @@ void Report::print(
                   << "\n";
     }
 
-    // Display structured code-quality issues.
+    // -----------------------------------------
+    // CODE QUALITY ISSUES
+    // -----------------------------------------
+
     bool hasIssues = false;
 
     for (const auto& stats : allStats) {
 
         if (!stats.issues.empty()) {
+
             hasIssues = true;
             break;
         }
@@ -126,8 +130,15 @@ void Report::print(
             for (const auto& issue : stats.issues) {
 
                 std::cout << "Issue: "
-                          << issue.type
-                          << "\n";
+                          << issue.type;
+
+                if (!issue.severity.empty()) {
+
+                    std::cout << " | Severity: "
+                              << issue.severity;
+                }
+
+                std::cout << "\n";
 
                 std::cout << "    File: "
                           << issue.filePath
@@ -138,6 +149,32 @@ void Report::print(
                     std::cout << "    Function: "
                               << issue.functionName
                               << "\n";
+                }
+
+                // Display numeric value.
+                if (issue.value > 0) {
+
+                    if (issue.type == "Large Function") {
+
+                        std::cout << "    Lines: "
+                                  << issue.value
+                                  << "\n";
+
+                    }
+                    else if (issue.type ==
+                             "High Complexity") {
+
+                        std::cout << "    Complexity score: "
+                                  << issue.value
+                                  << "\n";
+
+                    }
+                    else {
+
+                        std::cout << "    Value: "
+                                  << issue.value
+                                  << "\n";
+                    }
                 }
 
                 std::cout << "    Problem: "
@@ -153,10 +190,14 @@ void Report::print(
     } else {
 
         std::cout << "\n=== Code Quality Issues ===\n\n";
+
         std::cout << "No code quality issues found.\n";
     }
 
-    // Display duplicate code blocks.
+    // -----------------------------------------
+    // DUPLICATE CODE
+    // -----------------------------------------
+
     if (!duplicates.empty()) {
 
         std::cout << "\n=== Duplicate Code ===\n\n";
