@@ -330,27 +330,52 @@ void Report::print(
 
     int qualityScore = 100;
 
-    // Deduct points based on issue severity.
-    for (const auto& stats : allStats) {
+    // Calculate quality score based on issue type.
+for (const auto& stats : allStats) {
 
-        for (const auto& issue : stats.issues) {
+    for (const auto& issue : stats.issues) {
 
-            if (issue.severity == "HIGH") {
+        if (issue.type == "High Complexity") {
 
-                qualityScore -= 20;
+            qualityScore -= 12;
 
-            }
-            else if (issue.severity == "MEDIUM") {
+        }
+        else if (issue.type == "FIXME") {
 
-                qualityScore -= 10;
+            qualityScore -= 10;
 
-            }
-            else if (issue.severity == "LOW") {
+        }
+        else if (issue.type == "Large Function") {
 
-                qualityScore -= 5;
-            }
+            qualityScore -= 8;
+
+        }
+        else if (issue.type == "Duplicate Code") {
+
+            qualityScore -= 8;
+
+        }
+        else if (issue.type == "TODO") {
+
+            qualityScore -= 5;
+
+        }
+        else if (issue.severity == "HIGH") {
+
+            qualityScore -= 20;
+
+        }
+        else if (issue.severity == "MEDIUM") {
+
+            qualityScore -= 10;
+
+        }
+        else if (issue.severity == "LOW") {
+
+            qualityScore -= 5;
         }
     }
+}
 
     // Prevent the score from going below zero.
     if (qualityScore < 0) {
