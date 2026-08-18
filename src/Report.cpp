@@ -144,8 +144,7 @@ void Report::print(
                           << issue.filePath
                           << "\n";
 
-                // Display related file for issues
-                // involving multiple files.
+                // Display related file.
                 if (!issue.relatedFilePath.empty()) {
 
                     std::cout << "    Related file: "
@@ -153,6 +152,7 @@ void Report::print(
                               << "\n";
                 }
 
+                // Display function.
                 if (!issue.functionName.empty()) {
 
                     std::cout << "    Function: "
@@ -187,6 +187,14 @@ void Report::print(
                                   << "\n";
 
                     }
+                    else if (issue.type == "TODO" ||
+                             issue.type == "FIXME") {
+
+                        std::cout << "    Occurrences: "
+                                  << issue.value
+                                  << "\n";
+
+                    }
                     else {
 
                         std::cout << "    Value: "
@@ -212,11 +220,12 @@ void Report::print(
         std::cout << "No code quality issues found.\n";
     }
 
-        // -----------------------------------------
+    // -----------------------------------------
     // QUALITY SUMMARY
     // -----------------------------------------
 
     int totalIssues = 0;
+
     int highSeverity = 0;
     int mediumSeverity = 0;
     int lowSeverity = 0;
@@ -224,6 +233,8 @@ void Report::print(
     int largeFunctionIssues = 0;
     int complexityIssues = 0;
     int duplicateCodeIssues = 0;
+    int todoIssues = 0;
+    int fixmeIssues = 0;
 
     for (const auto& stats : allStats) {
 
@@ -261,6 +272,16 @@ void Report::print(
             else if (issue.type == "Duplicate Code") {
 
                 duplicateCodeIssues++;
+
+            }
+            else if (issue.type == "TODO") {
+
+                todoIssues++;
+
+            }
+            else if (issue.type == "FIXME") {
+
+                fixmeIssues++;
             }
         }
     }
@@ -295,76 +316,83 @@ void Report::print(
               << duplicateCodeIssues
               << "\n";
 
+    std::cout << "TODOs:              "
+              << todoIssues
+              << "\n";
+
+    std::cout << "FIXMEs:             "
+              << fixmeIssues
+              << "\n";
+
+    // -----------------------------------------
+    // QUALITY SCORE
+    // -----------------------------------------
+
+    int qualityScore = 100;
+
+    // Deduct points based on issue severity.
+    for (const auto& stats : allStats) {
+
+        for (const auto& issue : stats.issues) {
+
+            if (issue.severity == "HIGH") {
+
+                qualityScore -= 20;
+
+            }
+            else if (issue.severity == "MEDIUM") {
+
+                qualityScore -= 10;
+
+            }
+            else if (issue.severity == "LOW") {
+
+                qualityScore -= 5;
+            }
+        }
+    }
+
+    // Prevent the score from going below zero.
+    if (qualityScore < 0) {
+
+        qualityScore = 0;
+    }
+
+    std::string qualityRating;
+
+    if (qualityScore >= 90) {
+
+        qualityRating = "Excellent";
+
+    }
+    else if (qualityScore >= 75) {
+
+        qualityRating = "Good";
+
+    }
+    else if (qualityScore >= 50) {
+
+        qualityRating = "Needs Improvement";
+
+    }
+    else {
+
+        qualityRating = "Poor";
+    }
+
+    std::cout << "\n=== Quality Score ===\n\n";
+
+    std::cout << "Score:  "
+              << qualityScore
+              << " / 100\n";
+
+    std::cout << "Rating: "
+              << qualityRating
+              << "\n";
+
     // -----------------------------------------
     // DUPLICATE CODE DETAILS
     // -----------------------------------------
-        // -----------------------------------------
-// QUALITY SCORE
-// -----------------------------------------
-
-int qualityScore = 100;
-
-// Deduct points based on issue severity.
-for (const auto& stats : allStats) {
-
-    for (const auto& issue : stats.issues) {
-
-        if (issue.severity == "HIGH") {
-
-            qualityScore -= 20;
-
-        }
-        else if (issue.severity == "MEDIUM") {
-
-            qualityScore -= 10;
-
-        }
-        else if (issue.severity == "LOW") {
-
-            qualityScore -= 5;
-        }
-    }
-}
-
-// Prevent the score from going below zero.
-if (qualityScore < 0) {
-
-    qualityScore = 0;
-}
-
-std::string qualityRating;
-
-if (qualityScore >= 90) {
-
-    qualityRating = "Excellent";
-
-}
-else if (qualityScore >= 75) {
-
-    qualityRating = "Good";
-
-}
-else if (qualityScore >= 50) {
-
-    qualityRating = "Needs Improvement";
-
-}
-else {
-
-    qualityRating = "Poor";
-}
-
-std::cout << "\n=== Quality Score ===\n\n";
-
-std::cout << "Score:  "
-          << qualityScore
-          << " / 100\n";
-
-std::cout << "Rating: "
-          << qualityRating
-          << "\n";
-
-
 
     if (!duplicates.empty()) {
 

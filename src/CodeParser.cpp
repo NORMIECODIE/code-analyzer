@@ -150,10 +150,47 @@ FileStats CodeParser::analyzeFile(
             currentFunctionLines++;
         }
 
-        // Count TODOs.
-        if (line.find("TODO") != std::string::npos) {
-            stats.todoCount++;
-        }
+       // Count TODO comments and create a quality issue.
+if (line.find("TODO") != std::string::npos) {
+
+    stats.todoCount++;
+
+    QualityIssue issue;
+
+    issue.type = "TODO";
+    issue.filePath = stats.filePath;
+    issue.value = 1;
+
+    issue.message =
+        "TODO comment indicates unfinished work.";
+
+    issue.suggestion =
+        "Review and resolve the pending task.";
+
+    issue.severity = "LOW";
+
+    stats.issues.push_back(issue);
+}
+
+// Detect FIXME comments.
+if (line.find("FIXME") != std::string::npos) {
+
+    QualityIssue issue;
+
+    issue.type = "FIXME";
+    issue.filePath = stats.filePath;
+    issue.value = 1;
+
+    issue.message =
+        "FIXME comment indicates code that requires attention.";
+
+    issue.suggestion =
+        "Investigate and resolve the marked problem.";
+
+    issue.severity = "MEDIUM";
+
+    stats.issues.push_back(issue);
+}
 
         // Count control-flow statements for complexity.
         if (insideFunction) {
