@@ -1,5 +1,8 @@
 #include "ReviewContext.h"
 
+#include <fstream>
+#include <sstream>
+
 // Calculate the overall quality score from the detected issues.
 int calculateQualityScore(
     const std::vector<FileStats>& allStats
@@ -73,9 +76,33 @@ ReviewContext buildReviewContext(
     ReviewContext context;
 
     context.projectPath = projectPath;
+
     context.files = files;
+
     context.fileStats = allStats;
+
     context.duplicates = duplicates;
+
+    // Read the complete source code of each file.
+    for (const auto& filePath : files) {
+
+        std::ifstream file(filePath);
+
+        if (!file.is_open()) {
+
+            context.sourceCode.push_back("");
+
+            continue;
+        }
+
+        std::stringstream buffer;
+
+        buffer << file.rdbuf();
+
+        context.sourceCode.push_back(
+            buffer.str()
+        );
+    }
 
     context.qualityScore =
         calculateQualityScore(allStats);

@@ -22,16 +22,22 @@ struct ReviewContext {
     // Detected duplicate code blocks.
     std::vector<DuplicateMatch> duplicates;
 
+    // Complete source code of each analyzed file.
+    std::vector<std::string> sourceCode;
+
     // Overall quality score.
     int qualityScore = 100;
 
     // Total number of quality issues.
     int totalIssues = 0;
 };
+
+// Calculate the overall quality score.
 int calculateQualityScore(
     const std::vector<FileStats>& allStats
 );
 
+// Build the complete context for an AI code review.
 ReviewContext buildReviewContext(
     const std::string& projectPath,
     const std::vector<std::string>& files,

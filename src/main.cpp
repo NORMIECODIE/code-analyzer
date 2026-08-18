@@ -131,6 +131,9 @@ int main(int argc, char* argv[]) {
     std::cout << "Duplicate blocks: "
               << reviewContext.duplicates.size()
               << "\n";
+    std::cout << "Source files loaded: "
+          << reviewContext.sourceCode.size()
+          << "\n";
 
     // -----------------------------------------
     // GENERATE FINAL REPORT
