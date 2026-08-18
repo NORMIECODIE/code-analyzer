@@ -212,6 +212,89 @@ void Report::print(
         std::cout << "No code quality issues found.\n";
     }
 
+        // -----------------------------------------
+    // QUALITY SUMMARY
+    // -----------------------------------------
+
+    int totalIssues = 0;
+    int highSeverity = 0;
+    int mediumSeverity = 0;
+    int lowSeverity = 0;
+
+    int largeFunctionIssues = 0;
+    int complexityIssues = 0;
+    int duplicateCodeIssues = 0;
+
+    for (const auto& stats : allStats) {
+
+        for (const auto& issue : stats.issues) {
+
+            totalIssues++;
+
+            // Count severity.
+            if (issue.severity == "HIGH") {
+
+                highSeverity++;
+
+            }
+            else if (issue.severity == "MEDIUM") {
+
+                mediumSeverity++;
+
+            }
+            else if (issue.severity == "LOW") {
+
+                lowSeverity++;
+            }
+
+            // Count issue types.
+            if (issue.type == "Large Function") {
+
+                largeFunctionIssues++;
+
+            }
+            else if (issue.type == "High Complexity") {
+
+                complexityIssues++;
+
+            }
+            else if (issue.type == "Duplicate Code") {
+
+                duplicateCodeIssues++;
+            }
+        }
+    }
+
+    std::cout << "\n=== Quality Summary ===\n\n";
+
+    std::cout << "Total issues:        "
+              << totalIssues
+              << "\n";
+
+    std::cout << "High severity:      "
+              << highSeverity
+              << "\n";
+
+    std::cout << "Medium severity:    "
+              << mediumSeverity
+              << "\n";
+
+    std::cout << "Low severity:       "
+              << lowSeverity
+              << "\n\n";
+
+    std::cout << "Large functions:    "
+              << largeFunctionIssues
+              << "\n";
+
+    std::cout << "High complexity:    "
+              << complexityIssues
+              << "\n";
+
+    std::cout << "Duplicate code:     "
+              << duplicateCodeIssues
+              << "\n";
+
     // -----------------------------------------
     // DUPLICATE CODE DETAILS
     // -----------------------------------------
