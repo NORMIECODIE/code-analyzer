@@ -4,6 +4,7 @@
 #include "CodeParser.h"
 #include "Report.h"
 #include "DuplicateDetector.h"
+#include "ReviewContext.h"
 
 int main(int argc, char* argv[]) {
 
@@ -18,7 +19,10 @@ int main(int argc, char* argv[]) {
     std::string targetPath =
         argv[1];
 
-    // Scan the target project.
+    // -----------------------------------------
+    // SCAN PROJECT
+    // -----------------------------------------
+
     FileScanner scanner(targetPath);
 
     std::vector<std::string> files =
@@ -34,7 +38,10 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    // Analyze each source file.
+    // -----------------------------------------
+    // ANALYZE SOURCE FILES
+    // -----------------------------------------
+
     CodeParser parser;
 
     std::vector<FileStats> allStats;
@@ -46,21 +53,26 @@ int main(int argc, char* argv[]) {
         );
     }
 
-    // Find duplicate code blocks.
+    // -----------------------------------------
+    // FIND DUPLICATE CODE
+    // -----------------------------------------
+
     std::vector<DuplicateMatch> duplicates =
         DuplicateDetector::findDuplicates(
             allStats
         );
 
-    // Convert duplicate blocks into
-    // structured quality issues.
+    // -----------------------------------------
+    // CREATE DUPLICATE QUALITY ISSUES
+    // -----------------------------------------
+
     std::vector<QualityIssue> duplicateIssues =
         DuplicateDetector::createIssues(
             duplicates
         );
 
-    // Add duplicate issues to the first
-    // related file's issue list.
+    // Add duplicate issues to the
+    // corresponding file.
     for (size_t i = 0;
          i < duplicateIssues.size();
          i++) {
@@ -82,7 +94,48 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Generate the final report.
+    // -----------------------------------------
+    // BUILD AI REVIEW CONTEXT
+    // -----------------------------------------
+
+    ReviewContext reviewContext =
+        buildReviewContext(
+            targetPath,
+            files,
+            allStats,
+            duplicates
+        );
+
+    // -----------------------------------------
+    // DISPLAY CONTEXT INFORMATION
+    // -----------------------------------------
+
+    std::cout << "\n=== Review Context ===\n\n";
+
+    std::cout << "Project: "
+              << reviewContext.projectPath
+              << "\n";
+
+    std::cout << "Files included: "
+              << reviewContext.files.size()
+              << "\n";
+
+    std::cout << "Total issues: "
+              << reviewContext.totalIssues
+              << "\n";
+
+    std::cout << "Quality score: "
+              << reviewContext.qualityScore
+              << " / 100\n";
+
+    std::cout << "Duplicate blocks: "
+              << reviewContext.duplicates.size()
+              << "\n";
+
+    // -----------------------------------------
+    // GENERATE FINAL REPORT
+    // -----------------------------------------
+
     Report::print(
         allStats,
         duplicates
