@@ -144,6 +144,15 @@ void Report::print(
                           << issue.filePath
                           << "\n";
 
+                // Display related file for issues
+                // involving multiple files.
+                if (!issue.relatedFilePath.empty()) {
+
+                    std::cout << "    Related file: "
+                              << issue.relatedFilePath
+                              << "\n";
+                }
+
                 if (!issue.functionName.empty()) {
 
                     std::cout << "    Function: "
@@ -154,7 +163,8 @@ void Report::print(
                 // Display numeric value.
                 if (issue.value > 0) {
 
-                    if (issue.type == "Large Function") {
+                    if (issue.type ==
+                        "Large Function") {
 
                         std::cout << "    Lines: "
                                   << issue.value
@@ -165,6 +175,14 @@ void Report::print(
                              "High Complexity") {
 
                         std::cout << "    Complexity score: "
+                                  << issue.value
+                                  << "\n";
+
+                    }
+                    else if (issue.type ==
+                             "Duplicate Code") {
+
+                        std::cout << "    Lines duplicated: "
                                   << issue.value
                                   << "\n";
 
@@ -195,7 +213,7 @@ void Report::print(
     }
 
     // -----------------------------------------
-    // DUPLICATE CODE
+    // DUPLICATE CODE DETAILS
     // -----------------------------------------
 
     if (!duplicates.empty()) {

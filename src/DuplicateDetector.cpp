@@ -1,90 +1,71 @@
 #include "DuplicateDetector.h"
 
-// Check whether a line is meaningful enough to report.
-bool isMeaningfulCodeLine(const std::string& line) {
-
-    if (line.empty()) {
-        return false;
-    }
-
-    // Ignore braces.
-    if (line == "{" || line == "}") {
-        return false;
-    }
-
-    // Ignore preprocessor directives such as #include.
-    if (line[0] == '#') {
-        return false;
-    }
-
-    return true;
-}
-
-
+// Find duplicate code blocks between analyzed files.
 std::vector<DuplicateMatch> DuplicateDetector::findDuplicates(
     const std::vector<FileStats>& allStats) {
 
     std::vector<DuplicateMatch> duplicates;
 
-    // Compare every pair of files.
     for (size_t i = 0; i < allStats.size(); i++) {
 
         for (size_t j = i + 1; j < allStats.size(); j++) {
 
-            const auto& linesA = allStats[i].codeLines;
-            const auto& linesB = allStats[j].codeLines;
+            const auto& fileA = allStats[i];
+            const auto& fileB = allStats[j];
 
-            // Compare every starting position in file A.
-            for (size_t a = 0; a < linesA.size(); a++) {
+            // Compare every line from file A with file B.
+            for (size_t a = 0; a < fileA.codeLines.size(); a++) {
 
-                if (!isMeaningfulCodeLine(linesA[a])) {
-                    continue;
-                }
+                for (size_t b = 0; b < fileB.codeLines.size(); b++) {
 
-                // Compare against every starting position in file B.
-                for (size_t b = 0; b < linesB.size(); b++) {
+                    if (fileA.codeLines[a] ==
+                        fileB.codeLines[b]) {
 
-                    if (!isMeaningfulCodeLine(linesB[b])) {
-                        continue;
-                    }
+                        // Start building a duplicate block.
+                        std::vector<std::string> block;
 
-                    // Check whether the current lines match.
-                    if (linesA[a] != linesB[b]) {
-                        continue;
-                    }
+                        size_t currentA = a;
+                        size_t currentB = b;
 
-                    // We found the beginning of a possible duplicate block.
-                    std::vector<std::string> matchingLines;
+                        // Find consecutive matching lines.
+                        while (
+                            currentA < fileA.codeLines.size() &&
+                            currentB < fileB.codeLines.size() &&
+                            fileA.codeLines[currentA] ==
+                                fileB.codeLines[currentB]
+                        ) {
 
-                    size_t offset = 0;
+                            block.push_back(
+                                fileA.codeLines[currentA]
+                            );
 
-                    while (
-                        a + offset < linesA.size() &&
-                        b + offset < linesB.size() &&
-                        linesA[a + offset] == linesB[b + offset] &&
-                        isMeaningfulCodeLine(linesA[a + offset])
-                    ) {
+                            currentA++;
+                            currentB++;
+                        }
 
-                        matchingLines.push_back(linesA[a + offset]);
-                        offset++;
-                    }
+                        // Only consider blocks with at least
+                        // 2 duplicated lines.
+                        if (block.size() >= 2) {
 
-                    // Only report blocks containing at least 2 lines.
-                    if (matchingLines.size() >= 2) {
+                            DuplicateMatch match;
 
-                        DuplicateMatch match;
+                            match.firstFile =
+                                fileA.filePath;
 
-                        match.firstFile = allStats[i].filePath;
-                        match.secondFile = allStats[j].filePath;
-                        match.codeLines = matchingLines;
+                            match.secondFile =
+                                fileB.filePath;
 
-                        duplicates.push_back(match);
+                            match.codeLines =
+                                block;
 
-                        // Skip ahead to avoid repeatedly finding
-                        // the same block from the same starting point.
-                        a += matchingLines.size() - 1;
+                            duplicates.push_back(match);
 
-                        break;
+                            // Skip ahead to avoid repeatedly
+                            // detecting the same block.
+                            a = currentA - 1;
+
+                            break;
+                        }
                     }
                 }
             }
@@ -92,4 +73,59 @@ std::vector<DuplicateMatch> DuplicateDetector::findDuplicates(
     }
 
     return duplicates;
+}
+
+
+// Convert duplicate matches into QualityIssue objects.
+std::vector<QualityIssue>
+DuplicateDetector::createIssues(
+    const std::vector<DuplicateMatch>& duplicates) {
+
+    std::vector<QualityIssue> issues;
+
+    for (const auto& duplicate : duplicates) {
+
+        QualityIssue issue;
+
+        issue.type =
+            "Duplicate Code";
+
+        issue.filePath =
+            duplicate.firstFile;
+
+        issue.relatedFilePath =
+            duplicate.secondFile;
+
+        issue.value =
+            static_cast<int>(
+                duplicate.codeLines.size()
+            );
+
+        issue.message =
+            "A block of " +
+            std::to_string(issue.value) +
+            " consecutive lines is duplicated "
+            "across multiple files.";
+
+        issue.suggestion =
+            "Extract the repeated code into a shared "
+            "function or reusable component.";
+
+        // Four or more duplicated lines are considered
+        // a medium-severity issue.
+        if (issue.value >= 4) {
+
+            issue.severity =
+                "MEDIUM";
+
+        } else {
+
+            issue.severity =
+                "LOW";
+        }
+
+        issues.push_back(issue);
+    }
+
+    return issues;
 }

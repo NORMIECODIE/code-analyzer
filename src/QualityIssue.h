@@ -12,8 +12,12 @@ struct QualityIssue {
     // "Duplicate Code"
     std::string type;
 
-    // File where the issue was found.
+    // Main file where the issue was found.
     std::string filePath;
+
+    // Related file, if the issue involves another file.
+    // Used mainly for duplicate code detection.
+    std::string relatedFilePath;
 
     // Function related to the issue, if applicable.
     std::string functionName;
