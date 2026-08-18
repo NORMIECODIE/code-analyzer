@@ -298,6 +298,73 @@ void Report::print(
     // -----------------------------------------
     // DUPLICATE CODE DETAILS
     // -----------------------------------------
+        // -----------------------------------------
+// QUALITY SCORE
+// -----------------------------------------
+
+int qualityScore = 100;
+
+// Deduct points based on issue severity.
+for (const auto& stats : allStats) {
+
+    for (const auto& issue : stats.issues) {
+
+        if (issue.severity == "HIGH") {
+
+            qualityScore -= 20;
+
+        }
+        else if (issue.severity == "MEDIUM") {
+
+            qualityScore -= 10;
+
+        }
+        else if (issue.severity == "LOW") {
+
+            qualityScore -= 5;
+        }
+    }
+}
+
+// Prevent the score from going below zero.
+if (qualityScore < 0) {
+
+    qualityScore = 0;
+}
+
+std::string qualityRating;
+
+if (qualityScore >= 90) {
+
+    qualityRating = "Excellent";
+
+}
+else if (qualityScore >= 75) {
+
+    qualityRating = "Good";
+
+}
+else if (qualityScore >= 50) {
+
+    qualityRating = "Needs Improvement";
+
+}
+else {
+
+    qualityRating = "Poor";
+}
+
+std::cout << "\n=== Quality Score ===\n\n";
+
+std::cout << "Score:  "
+          << qualityScore
+          << " / 100\n";
+
+std::cout << "Rating: "
+          << qualityRating
+          << "\n";
+
+
 
     if (!duplicates.empty()) {
 
