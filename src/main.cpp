@@ -5,6 +5,8 @@
 #include "Report.h"
 #include "DuplicateDetector.h"
 #include "ReviewContext.h"
+#include "AIReviewEngine.h"
+#include "AIClient.h"
 
 int main(int argc, char* argv[]) {
 
@@ -105,6 +107,37 @@ int main(int argc, char* argv[]) {
             allStats,
             duplicates
         );
+        // -----------------------------------------
+// BUILD AI REVIEW PROMPT
+// -----------------------------------------
+
+AIReviewEngine aiReviewEngine;
+
+std::string reviewPrompt =
+    aiReviewEngine.buildReviewPrompt(
+        reviewContext
+    );
+    // Send the generated prompt to the AI client.
+AIClient aiClient;
+
+std::string aiResponse =
+    aiClient.requestReview(
+        reviewPrompt
+    );
+
+std::cout
+    << "\n=== AI REVIEW RESPONSE ===\n\n";
+
+std::cout
+    << aiResponse
+    << "\n";
+
+std::cout
+    << "\n=== AI REVIEW PROMPT ===\n\n";
+
+std::cout
+    << reviewPrompt
+    << "\n";
 
     // -----------------------------------------
     // DISPLAY CONTEXT INFORMATION

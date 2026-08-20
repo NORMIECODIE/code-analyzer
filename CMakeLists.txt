@@ -11,4 +11,6 @@ add_executable(analyzer
     src/Report.cpp
     src/DuplicateDetector.cpp
     src/ReviewContext.cpp
+    src/AIReviewEngine.cpp
+    src/AIClient.cpp
 )
